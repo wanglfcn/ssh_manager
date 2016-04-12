@@ -23,9 +23,9 @@ Node *new_node(NodeType type, char *item_name, char *ip, char *user_name, char *
 Node *gen_node(char *config)
 {
 	Node *res = NULL;
-	char *para[5];
+	char empty_str = 0;
+	char *para[5] = {&empty_str, &empty_str, &empty_str, &empty_str, &empty_str};
 	int index = 0;
-	memset(para, 0, 5*sizeof(char *));
 
 	while (*config && index < 5)
 	{
@@ -34,7 +34,7 @@ Node *gen_node(char *config)
 			*config = 0;
 			index ++;
 		}
-		else if (para[index] == NULL && *config != 0)
+		else if (para[index] == &empty_str && *config != 0)
 		{
 			para[index] = config;
 		}
@@ -52,7 +52,7 @@ Node *gen_node(char *config)
 	}
 	else
 	{
-		type = ITEM;
+		type = CHILD;
 	}
 
 	res = new_node(type, para[1], para[2], para[3], para[4]);
@@ -70,7 +70,11 @@ Node * read_config(char *path)
 	{
 		while (!feof(fp))
 		{
-			fgets(buf, 1024, fp);
+			if (fgets(buf, 1024, fp) == NULL)
+			{
+				break;
+			}
+
 			Node *node = gen_node(buf);
 			if (node == NULL) continue;
 			if (res == NULL)

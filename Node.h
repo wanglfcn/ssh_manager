@@ -2,8 +2,8 @@
 #define NODE_H
 typedef enum{
 	GROUP = 0,
-	NODE,
-	ITEM
+	CHILD,
+	NODE
 } NodeType;
 
 typedef struct Node{
