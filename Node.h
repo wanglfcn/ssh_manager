@@ -25,4 +25,6 @@ Node *gen_node(char *config);
 
 Node * read_config(char *path);
 
+void free_node(Node *node);
+
 #endif

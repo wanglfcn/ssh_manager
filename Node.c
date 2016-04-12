@@ -92,3 +92,15 @@ Node * read_config(char *path)
 	}
 	return res;
 }
+
+
+void free_node(Node *node)
+{
+	Node *next;
+	while (node)
+	{
+		next = node->next;
+		free(node);
+		node = next;
+	}
+}

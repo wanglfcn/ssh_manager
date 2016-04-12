@@ -14,8 +14,14 @@ int main()
 
 	MENU *menu;
 	WINDOW *window;
-
 	Node *node = node_head;
+
+	initscr();
+	start_color();
+	cbreak();
+	noecho();
+	keypad(stdscr, TRUE);
+	init_pair(1, COLOR_RED, COLOR_BLACK);
 
 	while(node)
 	{
@@ -32,13 +38,6 @@ int main()
 		node = node->next;
 	}
 	node_items[i] = (ITEM *)NULL;
-
-	initscr();
-	start_color();
-	cbreak();
-	noecho();
-	keypad(stdscr, TRUE);
-	init_pair(1, COLOR_RED, COLOR_BLACK);
 
 	menu = new_menu(node_items);
 	window = newwin(10, 40, 4, 4);
@@ -67,7 +66,10 @@ int main()
 				menu_driver(menu, REQ_UP_ITEM);
 				break;
 		}
+		wrefresh(window);
 	}
+
+	free_node(node_head);
 
 	unpost_menu(menu);
 	free_menu(menu);
