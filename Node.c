@@ -141,8 +141,11 @@ int get_group_index(Node *node)
 
 	while (node)
 	{
+		if (node->type != CHILD || node->is_expand == 1)
+		{
+			index ++;
+		}
 		node = node->prev;
-		index ++;
 	}
 	return index > 0? index -1: 0;
 }

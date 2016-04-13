@@ -29,20 +29,20 @@ int main()
 	menu = new_menu(item_list);
 	struct ttysize ts;
 	ioctl(0, TIOCGSIZE, &ts);
-	window = newwin(ts.ts_lines, ts.ts_cols, 4, 4);
+	window = newwin(ts.ts_lines - 8, ts.ts_cols - 8, 4, 4);
 
 	keypad(window, TRUE);
 
 	set_menu_win(menu, window);
-	set_menu_sub(menu, derwin(window, ts.ts_lines - 4, ts.ts_cols - 4, 3, 1));
-	set_menu_format(menu, 5, 1);
+	set_menu_sub(menu, derwin(window, ts.ts_lines - 12, ts.ts_cols - 12, 3, 1));
+	set_menu_format(menu, ts.ts_lines - 12, 1);
 	set_menu_mark(menu, " > ");
 
 	box(window, 0, 0);
-	print_in_middle(window, 1, 0, 40, "Machine List", COLOR_PAIR(1));
+	print_in_middle(window, 1, 0, ts.ts_cols, "Machine List", COLOR_PAIR(1));
 	mvwaddch(window, 2, 0, ACS_LTEE);
-	mvwhline(window, 2, 1, ACS_HLINE, 38);
-	mvwaddch(window, 2, 39, ACS_RTEE);
+	mvwhline(window, 2, 1, ACS_HLINE, ts.ts_cols - 5);
+	mvwaddch(window, 2, ts.ts_cols - 1, ACS_RTEE);
 
 	post_menu(menu);
 	wrefresh(window);
