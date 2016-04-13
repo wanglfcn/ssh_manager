@@ -13,7 +13,7 @@ Node *new_node(NodeType type, char *item_name, char *ip, char *user_name, char *
 		res->next = NULL;
 		res->prev = NULL;
 		strcpy(res->ip, ip);
-		strcpy(res->item_name, item_name);
+		sprintf(res->item_name, "[#] %s", item_name);
 		strcpy(res->user_name, user_name);
 		strcpy(res->password, password);
 	}
@@ -169,16 +169,9 @@ ITEM **get_item_list(Node *head)
 	{
 		if (node->type == GROUP || node->type == NODE || (node->type == CHILD && node->is_expand))
 		{
-			char buf[80];
-			switch (node->type)
+			if (node->type == GROUP)
 			{
-				case GROUP:
-					sprintf(buf, "[%c] %s", node->is_expand? '-': '+', node->item_name);
-					break;
-				case NODE:
-				case CHILD:
-					sprintf(buf, "[#] %s", node->item_name);
-					break;
+				node->item_name[1] = (char)(node->is_expand? '-': '+');
 			}
 			item_list[i] = new_item(node->item_name, node->ip);
 			i ++;
