@@ -1,8 +1,7 @@
 #include <ncurses.h>
 #include <menu.h>
-#include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+#include <sys/ioctl.h>
 #include "Node.h"
 
 void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color);
@@ -28,17 +27,19 @@ int main()
 
 	item_list = get_item_list(node_head);
 	menu = new_menu(item_list);
-	window = newwin(10, 40, 4, 4);
+	struct ttysize ts;
+	ioctl(0, TIOCGSIZE, &ts);
+	window = newwin(ts.ts_lines, ts.ts_cols, 4, 4);
 
 	keypad(window, TRUE);
 
 	set_menu_win(menu, window);
-	set_menu_sub(menu, derwin(window, 6, 38, 3, 1));
+	set_menu_sub(menu, derwin(window, ts.ts_lines - 4, ts.ts_cols - 4, 3, 1));
 	set_menu_format(menu, 5, 1);
 	set_menu_mark(menu, " > ");
 
 	box(window, 0, 0);
-	print_in_middle(window, 1, 0, 40, "My Menu", COLOR_PAIR(1));
+	print_in_middle(window, 1, 0, 40, "Machine List", COLOR_PAIR(1));
 	mvwaddch(window, 2, 0, ACS_LTEE);
 	mvwhline(window, 2, 1, ACS_HLINE, 38);
 	mvwaddch(window, 2, 39, ACS_RTEE);
@@ -76,6 +77,10 @@ int main()
 					item_list = get_item_list(node_head);
 					set_menu_items(menu, item_list);
 					post_menu(menu);
+					int index = get_group_index(node);
+					for (int i = 0; i < index; i++) {
+						menu_driver(menu, REQ_DOWN_ITEM);
+					}
 					wrefresh(window);
 				}
 				break;
