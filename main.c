@@ -11,14 +11,12 @@ int main()
 {
 	Node *node_head = read_config("/Users/wang/work/others/ssh_manager/machine.conf");
 
-	ITEM **node_items;
-	int node_count = 0;
+	ITEM **item_list;
 	int i;
 	int c;
 
 	MENU *menu;
 	WINDOW *window;
-	Node *node = node_head;
 
 	initscr();
 	start_color();
@@ -28,23 +26,8 @@ int main()
 	init_pair(1, COLOR_RED, COLOR_BLACK);
 	init_pair(2, COLOR_CYAN, COLOR_BLACK);
 
-	while(node)
-	{
-		node_count ++;
-		node = node->next;
-	}
-
-	node_items = (ITEM **)calloc(node_count + 1, sizeof(ITEM **));
-	node = node_head;
-
-	for (i = 0; i < node_count; i ++)
-	{
-		node_items[i] = new_item(node->item_name, node->ip);
-		node = node->next;
-	}
-	node_items[i] = NULL;
-
-	menu = new_menu(node_items);
+	item_list = get_item_list(node_head);
+	menu = new_menu(item_list);
 	window = newwin(10, 40, 4, 4);
 
 	keypad(window, TRUE);
@@ -71,8 +54,15 @@ int main()
 		switch (c)
 		{
 			case KEY_DOWN:
-				menu_driver(menu, REQ_DOWN_ITEM);
-				break;
+				{
+					menu_driver(menu, REQ_DOWN_ITEM);
+					ITEM *cur = current_item(menu);
+					char buf[80];
+					sprintf(buf, "cur index:%d", cur->index);
+					mvprintw(LINES - 1, 0, buf);
+					refresh();
+					break;
+				}
 			case KEY_UP:
 				menu_driver(menu, REQ_UP_ITEM);
 				break;
@@ -85,10 +75,6 @@ int main()
 	unpost_menu(menu);
 	free_menu(menu);
 
-	for (i = 0; i < node_count; i ++)
-	{
-		free_item(node_items[i]);
-	}
 	endwin();
 	return 0;
 }

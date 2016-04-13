@@ -1,5 +1,6 @@
 #ifndef NODE_H
 #define NODE_H
+#include <menu.h>
 typedef enum{
 	GROUP = 0,
 	CHILD,
@@ -26,5 +27,11 @@ Node *gen_node(char *config);
 Node * read_config(char *path);
 
 void free_node(Node *node);
+
+Node *get_node_by_index(int index, Node *head);
+
+void expand_node(Node *head, int status);
+
+ITEM **get_item_list(Node *head);
 
 #endif

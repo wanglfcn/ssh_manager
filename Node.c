@@ -104,3 +104,89 @@ void free_node(Node *node)
 		node = next;
 	}
 }
+
+Node *get_node_by_index(int index, Node *head)
+{
+	Node *res = NULL;
+	while (head)
+	{
+		if (head->type == GROUP || head->type == NODE || (head->type == CHILD && head->is_expand))
+		{
+			if (index == 0)
+			{
+				res = head;
+				break;
+			}
+			index --;
+		}
+		head = head->next;
+	}
+
+	return res;
+}
+
+void expand_node(Node *head, int status)
+{
+	if (head != NULL)
+	{
+		Node *child = head->next;
+		head->is_expand = status;
+		while (child)
+		{
+			if (child->type == CHILD)
+			{
+				child->is_expand = status;
+			}
+			else
+			{
+				break;
+			}
+			child = child->next;
+		}
+	}
+}
+
+ITEM **get_item_list(Node *head)
+{
+	ITEM **item_list = NULL;
+	size_t node_count = 0;
+	size_t i;
+	Node *node = head;
+
+	while(node)
+	{
+		if (node->type == GROUP || node->type == NODE || (node->type == CHILD && node->is_expand))
+		{
+			node_count ++;
+		}
+		node = node->next;
+	}
+
+	item_list = (ITEM **)calloc(node_count + 1, sizeof(ITEM **));
+	node = head;
+	i = 0;
+	while(node)
+	{
+		if (node->type == GROUP || node->type == NODE || (node->type == CHILD && node->is_expand))
+		{
+			char buf[80];
+			switch (node->type)
+			{
+				case GROUP:
+					sprintf(buf, "[%c] %s", node->is_expand? '-': '+', node->item_name);
+					break;
+				case NODE:
+				case CHILD:
+					sprintf(buf, "[#] %s", node->item_name);
+					break;
+			}
+			item_list[i] = new_item(node->item_name, node->ip);
+			i ++;
+		}
+		node = node->next;
+	}
+	item_list[i] = NULL;
+
+	return item_list;
+}
+
