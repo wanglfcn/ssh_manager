@@ -9,10 +9,10 @@ void print_in_middle(WINDOW *win, int starty, int startx, int width, char *strin
 
 int main()
 {
+	char result[200];
 	Node *node_head = read_config("/Users/wang/work/others/ssh_manager/machine.conf");
 
 	ITEM **item_list;
-	int i;
 	int c;
 
 	MENU *menu;
@@ -35,7 +35,7 @@ int main()
 	set_menu_win(menu, window);
 	set_menu_sub(menu, derwin(window, 6, 38, 3, 1));
 	set_menu_format(menu, 5, 1);
-	set_menu_mark(menu, ">");
+	set_menu_mark(menu, " > ");
 
 	box(window, 0, 0);
 	print_in_middle(window, 1, 0, 40, "My Menu", COLOR_PAIR(1));
@@ -46,26 +46,69 @@ int main()
 	post_menu(menu);
 	wrefresh(window);
 
-	mvprintw(LINES - 2, 0, "F1 to exit");
+	mvprintw(LINES - 2, 0, "q to exit");
 	refresh();
 
-	while ((c = wgetch(window)) != KEY_F(1))
+	while ((c = wgetch(window)) != 'q')
 	{
 		switch (c)
 		{
 			case KEY_DOWN:
+			case 'j':
 				{
 					menu_driver(menu, REQ_DOWN_ITEM);
 					ITEM *cur = current_item(menu);
-					char buf[80];
-					sprintf(buf, "cur index:%d", cur->index);
-					mvprintw(LINES - 1, 0, buf);
-					refresh();
 					break;
 				}
+			case 'k':
 			case KEY_UP:
 				menu_driver(menu, REQ_UP_ITEM);
 				break;
+			case 'i':
+			case 'l':
+			{
+				ITEM *cur = current_item(menu);
+				Node *node = get_node_by_index(cur->index, node_head);
+				if (node->type == GROUP)
+				{
+					expand_node(node, 1);
+					unpost_menu(menu);
+					item_list = get_item_list(node_head);
+					set_menu_items(menu, item_list);
+					post_menu(menu);
+					wrefresh(window);
+				}
+				break;
+			}
+			case 'o':
+			case 'h':
+			{
+				ITEM *cur = current_item(menu);
+				Node *node = get_node_by_index(cur->index, node_head);
+				if (node->type != NODE)
+				{
+					expand_node(node, 0);
+					unpost_menu(menu);
+					item_list = get_item_list(node_head);
+					set_menu_items(menu, item_list);
+					post_menu(menu);
+					int index = get_group_index(node);
+					for (int i = 0; i < index; i++) {
+						menu_driver(menu, REQ_DOWN_ITEM);
+					}
+					wrefresh(window);
+				}
+				break;
+			}
+			case KEY_ENTER:
+			case 'e':
+			{
+				ITEM *cur = current_item(menu);
+				Node *node = get_node_by_index(cur->index, node_head);
+				sprintf(result, "%s@%s\t%s", node->user_name, node->ip, node->password);
+				mvprintw(LINES - 1, 0, result);
+				refresh();
+			}
 		}
 		wrefresh(window);
 	}
@@ -76,6 +119,7 @@ int main()
 	free_menu(menu);
 
 	endwin();
+	printf("%s\n", result);
 	return 0;
 }
 

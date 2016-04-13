@@ -34,4 +34,6 @@ void expand_node(Node *head, int status);
 
 ITEM **get_item_list(Node *head);
 
+int get_group_index(Node *node);
+
 #endif

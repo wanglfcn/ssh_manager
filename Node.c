@@ -13,7 +13,14 @@ Node *new_node(NodeType type, char *item_name, char *ip, char *user_name, char *
 		res->next = NULL;
 		res->prev = NULL;
 		strcpy(res->ip, ip);
-		sprintf(res->item_name, "[#] %s", item_name);
+		if (type == CHILD)
+		{
+			strcpy(res->item_name, item_name);
+		}
+		else
+		{
+			sprintf(res->item_name, "[#] %s", item_name);
+		}
 		strcpy(res->user_name, user_name);
 		strcpy(res->password, password);
 	}
@@ -90,6 +97,25 @@ Node * read_config(char *path)
 			}
 		}
 	}
+
+	Node *node = res;
+	while (node)
+	{
+		if (node->type == CHILD)
+		{
+			char buf[80];
+			strcpy(buf, node->item_name);
+			if ((node->next == NULL) || (node->next->type != CHILD))
+			{
+				sprintf(node->item_name, " |__[#] %s", buf);
+			}
+			else
+			{
+				sprintf(node->item_name, " |--[#] %s", buf);
+			}
+		}
+		node = node->next;
+	}
 	return res;
 }
 
@@ -105,9 +131,26 @@ void free_node(Node *node)
 	}
 }
 
+int get_group_index(Node *node)
+{
+	int index = 0;
+	while (node && node->type == CHILD)
+	{
+		node = node->prev;
+	}
+
+	while (node)
+	{
+		node = node->prev;
+		index ++;
+	}
+	return index > 0? index -1: 0;
+}
+
 Node *get_node_by_index(int index, Node *head)
 {
 	Node *res = NULL;
+
 	while (head)
 	{
 		if (head->type == GROUP || head->type == NODE || (head->type == CHILD && head->is_expand))
@@ -127,6 +170,11 @@ Node *get_node_by_index(int index, Node *head)
 
 void expand_node(Node *head, int status)
 {
+	while(head && (head->type == CHILD))
+	{
+		head = head->prev;
+	}
+
 	if (head != NULL)
 	{
 		Node *child = head->next;
@@ -172,6 +220,7 @@ ITEM **get_item_list(Node *head)
 			if (node->type == GROUP)
 			{
 				node->item_name[1] = (char)(node->is_expand? '-': '+');
+				printw(node->item_name);
 			}
 			item_list[i] = new_item(node->item_name, node->ip);
 			i ++;
