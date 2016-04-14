@@ -197,6 +197,22 @@ void expand_node(Node *head, int status)
 	}
 }
 
+void free_item_list(ITEM ** item_list)
+{
+	return;
+	if (item_list == NULL)
+	{
+		return;
+	}
+
+	for (int i = 0; item_list[i] != NULL; i ++)
+	{
+		free_item(item_list[i]);
+	}
+
+	free(item_list);
+}
+
 ITEM **get_item_list(Node *head)
 {
 	ITEM **item_list = NULL;
@@ -214,6 +230,10 @@ ITEM **get_item_list(Node *head)
 	}
 
 	item_list = (ITEM **)calloc(node_count + 1, sizeof(ITEM **));
+	if (item_list == NULL)
+	{
+		return NULL;
+	}
 	node = head;
 	i = 0;
 	while(node)

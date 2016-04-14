@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4)
-project(ssh_manager)
+project(gt)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -10,5 +10,5 @@ set(SOURCE_FILES
     Node.h)
 
 
-add_executable(ssh_manager ${SOURCE_FILES})
-target_link_libraries(ssh_manager ncurses menu)
+add_executable(gt ${SOURCE_FILES})
+target_link_libraries(gt ncurses menu)

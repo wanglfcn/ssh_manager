@@ -12,8 +12,8 @@ extern int sshpass(int argc, char *argv[]);
 
 int main()
 {
-	char **result = (char **)malloc(sizeof(char *) * 5);
-	for (int i = 0; i < 5; i ++)
+	char **result = (char **)malloc(sizeof(char *) * 7);
+	for (int i = 0; i < 7; i ++)
 	{
 		result[i] = (char *)malloc(sizeof(char) * 200);
 	}
@@ -22,12 +22,14 @@ int main()
 	strcpy(result[1], "-p");
 	strcpy(result[2], "worker");
 	strcpy(result[3], "ssh");
-	strcpy(result[4], "worker@10.101.2.78");
+	strcpy(result[4], "-o");
+	strcpy(result[5], "StrictHostKeyChecking=no");
+	strcpy(result[6], "worker@10.101.2.78");
 
 	int has_enter = 0;
-	Node *node_head = read_config("/Users/wang/work/others/ssh_manager/machine.conf");
+	Node *node_head = read_config("/Users/wang/.config/machine.conf");
 
-	ITEM **item_list;
+	ITEM **item_list = NULL;
 	int c;
 
 	MENU *menu;
@@ -90,6 +92,7 @@ int main()
 				{
 					expand_node(node, 1);
 					unpost_menu(menu);
+					free_item_list(item_list);
 					item_list = get_item_list(node_head);
 					set_menu_items(menu, item_list);
 					post_menu(menu);
@@ -110,6 +113,7 @@ int main()
 				{
 					expand_node(node, 0);
 					unpost_menu(menu);
+					free_item_list(item_list);
 					item_list = get_item_list(node_head);
 					set_menu_items(menu, item_list);
 					post_menu(menu);
@@ -126,7 +130,7 @@ int main()
 				ITEM *cur = current_item(menu);
 				Node *node = get_node_by_index(cur->index, node_head);
 				strcpy(result[2], node->password);
-				sprintf(result[4], "%s@%s", node->user_name, node->ip);
+				sprintf(result[6], "%s@%s", node->user_name, node->ip);
 				refresh();
 				has_enter = 1;
 				break;
@@ -142,13 +146,14 @@ int main()
 	free_node(node_head);
 
 	unpost_menu(menu);
+	free_item_list(item_list);
 	free_menu(menu);
 
 	endwin();
 	if (has_enter)
 	{
-		sshpass(5, result);
-		for (int i = 0; i < 5; i ++)
+		sshpass(7, result);
+		for (int i = 0; i < 7; i ++)
 		{
 			free(result[i]);
 		}

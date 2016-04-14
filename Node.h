@@ -36,4 +36,6 @@ ITEM **get_item_list(Node *head);
 
 int get_group_index(Node *node);
 
+void free_item_list(ITEM ** item_list);
+
 #endif
