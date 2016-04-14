@@ -223,7 +223,6 @@ ITEM **get_item_list(Node *head)
 			if (node->type == GROUP)
 			{
 				node->item_name[1] = (char)(node->is_expand? '-': '+');
-				printw(node->item_name);
 			}
 			item_list[i] = new_item(node->item_name, node->ip);
 			i ++;

@@ -1,14 +1,30 @@
 #include <ncurses.h>
 #include <menu.h>
 #include <string.h>
+#include <stdlib.h>
 #include <sys/ioctl.h>
 #include "Node.h"
 
 void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color);
 
+extern int sshpass(int argc, char *argv[]);
+
+
 int main()
 {
-	char result[200];
+	char **result = (char **)malloc(sizeof(char *) * 5);
+	for (int i = 0; i < 5; i ++)
+	{
+		result[i] = (char *)malloc(sizeof(char) * 200);
+	}
+
+	strcpy(result[0], "sshpass");
+	strcpy(result[1], "-p");
+	strcpy(result[2], "worker");
+	strcpy(result[3], "ssh");
+	strcpy(result[4], "worker@10.101.2.78");
+
+	int has_enter = 0;
 	Node *node_head = read_config("/Users/wang/work/others/ssh_manager/machine.conf");
 
 	ITEM **item_list;
@@ -105,26 +121,39 @@ int main()
 				}
 				break;
 			}
-			case KEY_ENTER:
-			case 'e':
+			case '\n':
 			{
 				ITEM *cur = current_item(menu);
 				Node *node = get_node_by_index(cur->index, node_head);
-				sprintf(result, "%s@%s\t%s", node->user_name, node->ip, node->password);
-				mvprintw(LINES - 1, 0, result);
+				strcpy(result[2], node->password);
+				sprintf(result[4], "%s@%s", node->user_name, node->ip);
 				refresh();
+				has_enter = 1;
+				break;
 			}
 		}
 		wrefresh(window);
-	}
 
+		if (c == '\n')
+		{
+			break;
+		}
+	}
 	free_node(node_head);
 
 	unpost_menu(menu);
 	free_menu(menu);
 
 	endwin();
-	printf("%s\n", result);
+	if (has_enter)
+	{
+		sshpass(5, result);
+		for (int i = 0; i < 5; i ++)
+		{
+			free(result[i]);
+		}
+		free(result);
+	}
 	return 0;
 }
 
