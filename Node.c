@@ -82,6 +82,11 @@ Node * read_config(char *path)
 				break;
 			}
 
+			if (strlen(buf) < 5 || buf[0] == '#')
+			{
+				continue;
+			}
+
 			Node *node = gen_node(buf);
 			if (node == NULL) continue;
 			if (res == NULL)
